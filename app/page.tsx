@@ -1,10 +1,29 @@
-import { Suspense } from "react";
+'use client'
+
+import { Suspense, useEffect, useState } from "react";
 import CommentsModal from "./components/commentsModal";
 import Navbar from "./components/navbar";
 import Skeleton from "./components/skeleton";
 import Posts from "./components/posts";
+import { Post } from "./interfaces/post";
+import { getData } from "./services/postService";
 
-export default async function Home() {
+export default function Home() {
+    const [posts, setPosts] = useState<Post[] | null>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getData();
+                setPosts(data);
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     return (
         <>
             <Navbar />
@@ -20,9 +39,7 @@ export default async function Home() {
                 </div >
             </section >
 
-            <Suspense fallback={<Skeleton />}>
-                <Posts />
-            </Suspense>
+            <Posts posts={posts} />
 
             <CommentsModal />
         </>
